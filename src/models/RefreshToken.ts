@@ -9,7 +9,7 @@ export interface IRefreshTokenModel extends IRefreshToken, Document {}
 
 const RefreshTokenSchema: Schema = new Schema(
     {
-        userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+        userId: { type: String, required: true },
         token: { type: String, required: true }
     },
     {
@@ -17,5 +17,7 @@ const RefreshTokenSchema: Schema = new Schema(
         versionKey: false
     }
 )
+
+RefreshTokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 })
 
 export default mongoose.model<IRefreshTokenModel>('RefreshToken', RefreshTokenSchema)

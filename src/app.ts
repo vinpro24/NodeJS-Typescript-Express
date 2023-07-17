@@ -3,34 +3,39 @@ import 'express-async-errors'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { config } from './constants'
+import { NotFoundError, errorHandler } from '@v8devs/common'
+
+import Morgan from './middlewares/Morgan'
+import { rateLimiter, speedLimiter } from './middlewares/Limiter'
+
+import swagger from './libraries/Swagger'
 
 import authRoutes from './routes/Auth'
 import userRoutes from './routes/User'
-import { NotFoundError, errorHandler } from '@v8devs/common'
-import swagger from './libraries/Swagger'
-import Morgan from './middlewares/Morgan'
-import { rateLimiter, speedLimiter } from './middlewares/Limiter'
 
 const app = express()
 
 app.use(helmet())
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }))
-app.use(Morgan)
 app.use(express.urlencoded({ extended: true, limit: '100mb' }))
 app.use(express.json({ limit: '100mb' }))
 app.use(cookieParser())
-app.use(cors(config.corsOptions))
+app.use(cors({ origin: '*' }))
+app.use(Morgan)
 swagger(app)
 app.use(rateLimiter)
 app.use(speedLimiter)
+
+app.use('/public', express.static('public'))
 
 /** Routes */
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/users', userRoutes)
 
 /** Healthcheck */
-app.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }))
+app.get('/health', (req, res, next) => {
+    res.status(200).json({ uptime: process.uptime(), responseTime: process.hrtime(), timestamp: Date.now(), message: 'OK' })
+})
 
 // UnKnown Routes
 app.all('*', () => {

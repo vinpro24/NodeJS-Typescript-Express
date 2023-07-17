@@ -25,7 +25,7 @@ export const Schemas = {
             password: Joi.string().required()
         }),
         signin: Joi.object<IUser>({
-            email: Joi.string().email(),
+            email: Joi.string().required(),
             password: Joi.string().required()
         }),
         resetpassword: Joi.object<any>({
@@ -35,7 +35,7 @@ export const Schemas = {
     },
     users: {
         update: Joi.object<IUser>({
-            name: Joi.string().required(),
+            name: Joi.string(),
             email: Joi.string().email()
         })
     }

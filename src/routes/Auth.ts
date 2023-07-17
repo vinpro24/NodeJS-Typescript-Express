@@ -8,5 +8,6 @@ const router = express.Router()
 router.post('/signup', ValidateJoi(Schemas.auth.signup), controller.signup)
 router.post('/signin', ValidateJoi(Schemas.auth.signin), controller.signin)
 router.put('/reset-password', currentUser, requireAuth, ValidateJoi(Schemas.auth.resetpassword), controller.resetPassword)
+router.get('/refresh', controller.refreshToken)
 
 export default router
