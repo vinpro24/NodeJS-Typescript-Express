@@ -1,7 +1,7 @@
 # [NodeJS Typescript Express](https://github.com/vinpro24/NodeJS-Typescript-Express) [![Github](https://static.wixstatic.com/media/d84663_5ce0f9a5ac934e3d8abeffda952a776c~mv2.png)](https://github.com/vinpro24)
 
-![version](https://img.shields.io/badge/version-2.1.0-blue.svg)
-[![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/material-dashboard-react.svg)](https://github.com/vinpro24/NodeJS-Typescript-Express/issues?q=is%3Aopen+is%3Aissue)
+![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+[![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/material-dashboard-react.svg)](https://github.com/vinpro24/NodeJS-Typescript-Express/issues?q=is%0Aopen+is%3Aissue)
 [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/material-dashboard-react.svg)](https://github.com/vinpro24/NodeJS-Typescript-Express/issues?q=is%3Aissue+is%3Aclosed)
 
 Template for building NodeJS, Typescript and ExpressJS services. The main goal of this boilerplate is to offer a good Developer Experience (eg: debugging, watch and recompile) by providing the
@@ -48,7 +48,7 @@ following features out of the box:
 ssh -i <key.pem> ubuntu@<ip-address> -v
 ```
 
-### 3. Update and Upgrade linux machine and install node and nvm
+### 3. Update and Upgrade linux machine and install node and nginx
 
 ```sh
 sudo apt update
@@ -59,156 +59,78 @@ sudo apt upgrade
 ```
 
 ```sh
-sudo apt install -y git htop wget
-```
-
-#### 3.1 install node
-
-To **install** or **update** nvm, you should run the [install script][2]. To do that, you may either download and run the script manually, or use the following cURL or Wget command:
-
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-```
-
-Or
-
-```sh
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-```
-
-Running either of the above commands downloads a script and runs it. The script clones the nvm repository to `~/.nvm`, and attempts to add the source lines from the snippet below to the correct
-profile file (`~/.bash_profile`, `~/.zshrc`, `~/.profile`, or `~/.bashrc`).
-
-#### 3.2 Copy & Past (each line separately)
-
-<a id="profile_snippet"></a>
-
-```sh
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-```
-
-#### 3.3 Verify that nvm has been installed
-
-```sh
-nvm --version
-```
-
-#### 3.4 Install node
-
-```sh
-nvm install --lts # Latest stable node js server version
-```
-
-#### 3.5 Check nodejs installed
-
-```sh
-node --version
-```
-
-#### 3.6 Check npm installed
-
-```sh
-npm -v
-```
-
-### 4. Clone NodeJS-Typescript-Express repository
-
-```sh
-cd /home/ubuntu
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 ```
 
 ```sh
-git clone https://github.com/vinpro24/NodeJS-Typescript-Express.git
-```
-
-### 5. Run node app.js (Make sure everything working)
-
-```sh
-cd NodeJS-Typescript-Express
+sudo apt-get install -y nodejs
 ```
 
 ```sh
-npm install
+sudo apt-get install -y nginx
 ```
 
+#### 3.1 Config nginx and restart it
+
 ```sh
-node app.js
+cd /etc/nginx/sites-available
+sudo nano default
+
+server_name yourdomain.com www.yourdomain.com;
+location / {
+	proxy_pass  http://localhost:3000;
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_cache_bypass $http_upgrade;
+}
+sudo systemctl restart nginx
 ```
 
-### 6. Install pm2
+#### 3.2 Install pm2
 
 ```sh
-npm install -g pm2 # may require sudo
+sudo npm i -g pm2
 ```
 
-### 7. Starting the app with pm2 (Run nodejs in background and when server restart)
+#### 3.3 Starting the app with pm2 (Run nodejs in background and when server restart)
 
 ```sh
-pm2 start app.js --name=NodeJS-Typescript-Express
+pm2 start app.js --name=BackendAPI
 ```
 
+#### 3.4 Saves the running processes. If not saved, pm2 will forget, the running apps on next boot
+
 ```sh
-pm2 save     # saves the running processes
-                  # if not saved, pm2 will forget
-                  # the running apps on next boot
+pm2 save
 ```
 
-#### 7.1 IMPORTANT: If you want pm2 to start on system boot
+#### 3.5 IMPORTANT: If you want pm2 to start on system boot
 
 ```sh
-pm2 startup # starts pm2 on computer boot
+pm2 startup
 ```
 
-### 8. FREE SSL - Install Nginx web server
+#### 3.6 Restart the nodejs api server
 
 ```sh
-sudo apt install nginx
-```
-
-```sh
-sudo nano /etc/nginx/sites-available/default
-```
-
-#### Add the following to the location part of the server block
-
-```sh
-    server_name yourdomain.com www.yourdomain.com;
-
-    location / {
-        proxy_pass http://localhost:5000; #whatever port your app runs on
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-```
-
-##### Check NGINX config
-
-```sh
-sudo nginx -t
-```
-
-##### Restart NGINX
-
-```sh
-sudo service nginx restart
+pm2 restart BackendAPI
 ```
 
 #### You should now be able to visit your IP with no port (port 80) and see your app. Now let's add a domain
 
-### 9 Add domain in goDaddy.com
+### 94 Add domain in goDaddy.com
 
 If you have domain, you can add A record to your EC2 instance IP with a new subdomain as I'm going to show you next
 
-#### 9.1 Check that Port 80 redirect to Nodejs server
+#### 4.1 Check that Port 80 redirect to Nodejs server
 
-### 10 Installing Free SSL
+### 5 Installing Free SSL
 
-#### 10.1 Installing Certbot
+#### 5.1 Installing Certbot
 
 ```sh
 sudo snap install core; sudo snap refresh core
@@ -226,7 +148,7 @@ sudo snap install --classic certbot
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
 ```
 
-#### 10.2 Confirming Nginx’s Configuration
+#### 5.2 Confirming Nginx’s Configuration
 
 ```sh
 sudo nano /etc/nginx/sites-available/default
@@ -248,7 +170,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-#### 10.3 Obtaining an FREE SSL Certificate
+#### 5.3 Obtaining an FREE SSL Certificate
 
 ```sh
 sudo certbot --nginx -d app.example.com
@@ -271,7 +193,7 @@ If you like Certbot, please consider supporting our work by:
 * Donating to EFF: https://eff.org/donate-le
 ```
 
-#### 10.4 Verifying Certbot Auto-Renewal
+#### 5.4 Verifying Certbot Auto-Renewal
 
 ```sh
 sudo systemctl status snap.certbot.renew.service
@@ -292,7 +214,7 @@ To test the renewal process, you can do a dry run with certbot:
 sudo certbot renew --dry-run
 ```
 
-### 11. Visit your website HTTPS://<your website>
+### 6. Visit your website HTTPS://<your website>
 
 Enjoy Your free Nodejs server with Free SSL :)
 

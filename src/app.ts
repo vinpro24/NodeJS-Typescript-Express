@@ -34,7 +34,7 @@ app.use('/api/v1/users', userRoutes)
 
 /** Healthcheck */
 app.get('/health', (req, res, next) => {
-    res.status(200).json({ uptime: process.uptime(), responseTime: process.hrtime(), timestamp: Date.now(), message: 'OK' })
+    res.status(200).json({ pid: process.pid, uptime: process.uptime(), responseTime: process.hrtime(), timestamp: Date.now(), message: 'OK' })
 })
 
 // UnKnown Routes
