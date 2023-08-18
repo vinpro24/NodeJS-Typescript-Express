@@ -1,12 +1,31 @@
-import rateLimit from 'express-rate-limit'
+import { RateLimiterCluster, RateLimiterMemory } from 'rate-limiter-flexible'
 import slowDown from 'express-slow-down'
+import { NextFunction, Request, Response } from 'express'
 
-const rateLimiter = rateLimit({
-    windowMs: 30 * 1000, // 30 seconds
-    max: 30, // Limit each IP to 30 requests per `window` (here, per 30 seconds)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
-})
+let rateLimiterFlexible: any = null
+if (process.env.NODE_ENV === 'prod') {
+    rateLimiterFlexible = new RateLimiterCluster({
+        keyPrefix: 'middleware', // Must be unique for each limiter
+        timeoutMs: 30000, // Promise is rejected, if master doesn't answer for 30 secs
+        points: 30, // Limit each IP to 30 requests
+        duration: 10 // 10 seconds
+    })
+} else {
+    rateLimiterFlexible = new RateLimiterMemory({
+        points: 3, // Limit each IP to 30 requests
+        duration: 10 // 10 seconds
+    })
+}
+const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
+    rateLimiterFlexible
+        .consume(req.ip)
+        .then(() => {
+            next()
+        })
+        .catch(() => {
+            res.status(429).send('Too Many Requests')
+        })
+}
 
 const speedLimiter = slowDown({
     windowMs: 30 * 1000, // 30 seconds

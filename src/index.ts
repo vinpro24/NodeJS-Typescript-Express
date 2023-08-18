@@ -1,16 +1,18 @@
-import app from './app'
+import 'module-alias/register'
 import mongoose from 'mongoose'
-import { config } from './constants'
 import { Logging } from '@v8devs/common'
 import cluster from 'cluster'
 import os from 'os'
+import { RateLimiterClusterMaster } from 'rate-limiter-flexible'
 const http = require('http')
 const cpus = os.cpus
+
+import app from './app'
+import { config } from './constants'
 
 /** Only Start Server if Mongoose Connects */
 const StartServer = async () => {
     Logging.info('Server is checking workflow for merge...')
-
     /** Throw error if config variable undefine */
     if (!config.mongoUrl) {
         return Logging.error('Mongo Url not define')
@@ -28,7 +30,7 @@ const StartServer = async () => {
     }
 }
 
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'dev' || !process.argv.includes('cluster')) {
     StartServer()
 } else {
     /**
@@ -101,6 +103,10 @@ if (process.env.NODE_ENV === 'dev') {
                 cluster.fork()
             }
         })
+
+        // Doesn't require any options, it is only storage and messages handler
+        new RateLimiterClusterMaster()
+
         // Graceful shutdown of all workers
         process.on('SIGTERM', gracefulClusterShutdown)
     } else {
