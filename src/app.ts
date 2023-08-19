@@ -8,7 +8,7 @@ import { NotFoundError, errorHandler } from '@v8devs/common'
 import Morgan from './middlewares/Morgan'
 import { rateLimiter, speedLimiter } from './middlewares/Limiter'
 
-import swagger from './libraries/Swagger'
+import swagger from '~/libraries/Swagger'
 
 import authRoutes from './routes/Auth'
 import userRoutes from './routes/User'
@@ -23,7 +23,7 @@ app.use(cookieParser())
 app.use(cors({ origin: '*' }))
 app.use(Morgan)
 swagger(app)
-// app.use(rateLimiter)
+app.use(rateLimiter)
 app.use(speedLimiter)
 
 app.use('/public', express.static('public'))

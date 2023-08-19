@@ -19,7 +19,16 @@
         "testEnvironment": "node",
         "setupFilesAfterEnv": [
             "./src/test/setup.ts"
-        ]
+        ],
+        "roots": [
+            "<rootDir>/src/"
+        ],
+        "transform": {
+            "^.+\\.(ts|tsx)$": "ts-jest"
+        },
+        "moduleNameMapper": {
+            "~/(.*)": "<rootDir>/src/$1"
+        }
     },
     "author": "",
     "license": "ISC",
