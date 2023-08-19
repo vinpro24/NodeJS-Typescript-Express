@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'prod') {
     })
 } else {
     rateLimiterFlexible = new RateLimiterMemory({
-        points: 3, // Limit each IP to 30 requests
+        points: 30, // Limit each IP to 30 requests
         duration: 10 // 10 seconds
     })
 }
