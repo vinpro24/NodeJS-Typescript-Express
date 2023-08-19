@@ -1,4 +1,4 @@
-# [NodeJS Typescript Express](https://github.com/vinpro24/NodeJS-Typescript-Express) [![Github](https://static.wixstatic.com/media/d84663_5ce0f9a5ac934e3d8abeffda952a776c~mv2.png)](https://github.com/vinpro24)
+# [NodeJS Typescript Express]
 
 ![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/material-dashboard-react.svg)](https://github.com/vinpro24/NodeJS-Typescript-Express/issues?q=is%0Aopen+is%3Aissue)
