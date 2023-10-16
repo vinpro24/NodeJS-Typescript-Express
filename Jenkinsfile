@@ -4,6 +4,7 @@ pipeline {
 
   environment {
     DOCKER_IMAGE = "vinpro/nodedemo"
+    DOCKER_TAG = "latest"
   }
 
   stages {
@@ -23,9 +24,9 @@ pipeline {
 
     stage("build") {
     //   agent { node {label 'main'}}
-      environment {
-        DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
-      }
+    //   environment {
+    //     DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
+    //   }
       steps {
         sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} . "
         sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
