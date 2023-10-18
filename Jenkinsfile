@@ -22,7 +22,9 @@ pipeline {
     // }
 
     stage("build") {
-      agent { node {label 'main'}}
+      agent {
+        docker { image 'node:18.18.2-alpine3.18' }
+      }
       environment {
         DOCKER_TAG="${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
       }
